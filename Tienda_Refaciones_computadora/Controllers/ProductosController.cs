@@ -81,6 +81,95 @@ namespace Tienda_Refaciones_computadora.Controllers
             var categorias = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
             ViewBag.CategoriaId = new SelectList(categorias, "Id", "Nombre", seleccionada);
         }
+
+        // GET: Productos/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            await CargarCategorias(producto.CategoriaId);
+            return View(producto);
+        }
+
+        // POST: Productos/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Marca,Precio,Stock,CategoriaId")] Producto producto)
+        {
+            if (id != producto.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(producto);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _context.Productos.AnyAsync(p => p.Id == id))
+                    {
+                        return NotFound();
+                    }
+                    throw;
+                }
+
+                TempData["Mensaje"] = "Producto actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await CargarCategorias(producto.CategoriaId);
+            return View(producto);
+        }
+
+        // GET: Productos/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos
+                .Include(p => p.Categoria)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            return View(producto);
+        }
+
+        // POST: Productos/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto != null)
+            {
+                _context.Productos.Remove(producto);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["Mensaje"] = "Producto eliminado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 
 
