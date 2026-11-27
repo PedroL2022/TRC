@@ -81,6 +81,59 @@ namespace Tienda_Refaciones_computadora.Controllers
             var categorias = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
             ViewBag.CategoriaId = new SelectList(categorias, "Id", "Nombre", seleccionada);
         }
+
+        // GET: Productos/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            await CargarCategorias(producto.CategoriaId);
+            return View(producto);
+        }
+
+        // POST: Productos/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Marca,Precio,Stock,CategoriaId")] Producto producto)
+        {
+            if (id != producto.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(producto);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _context.Productos.AnyAsync(p => p.Id == id))
+                    {
+                        return NotFound();
+                    }
+                    throw;
+                }
+
+                TempData["Mensaje"] = "Producto actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await CargarCategorias(producto.CategoriaId);
+            return View(producto);
+        }
+
     }
 
 
