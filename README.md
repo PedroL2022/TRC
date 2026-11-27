@@ -8,7 +8,7 @@ Sistema CRUD para administrar el inventario de una tienda de refacciones de comp
 
 ## Cómo ejecutar el proyecto
 
-1. Clonar el repositorio: `git clone https://github.com/PedroL2022/Tienda_Refaciones_computadora.git`
+1. Clonar el repositorio: `https://github.com/PedroL2022/TRC/tree/main`
 3. Entrar a la carpeta del proyecto: `cd Tienda_Refaciones_computadora`
 4. Ejecutar: `dotnet run` o depurador del mismo vsStudio arriba el botoncito verde
 5. Abrir en el navegador: `http://localhost:5292`
