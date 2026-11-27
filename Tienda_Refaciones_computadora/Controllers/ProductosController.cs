@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Tienda_Refaciones_computadora.Data;
+using Tienda_Refaciones_computadora.Models;
+
 
 namespace Tienda_Refaciones_computadora.Controllers
 {
@@ -48,5 +51,37 @@ namespace Tienda_Refaciones_computadora.Controllers
 
             return View(producto);
         }
+
+        // GET: Productos/Create
+        public async Task<IActionResult> Create()
+        {
+            await CargarCategorias();
+            return View();
+        }
+
+        // POST: Productos/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Nombre,Marca,Precio,Stock,CategoriaId")] Producto producto)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Productos.Add(producto);
+                await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Producto agregado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await CargarCategorias(producto.CategoriaId);
+            return View(producto);
+        }
+
+        private async Task CargarCategorias(int? seleccionada = null)
+        {
+            var categorias = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+            ViewBag.CategoriaId = new SelectList(categorias, "Id", "Nombre", seleccionada);
+        }
     }
+
+
 }
